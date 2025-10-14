@@ -1,0 +1,14 @@
+# build-notifications.ps1
+Write-Output "📦 Empaquetando notifications-service..."
+
+$distPath = "..\dist"
+if (!(Test-Path $distPath)) {
+    New-Item -ItemType Directory -Path $distPath | Out-Null
+}
+
+if (Test-Path "$distPath\notifications-service.zip") {
+    Remove-Item "$distPath\notifications-service.zip"
+}
+
+zip -r "$distPath\notifications-service.zip" .
+Write-Output "✅ Paquete creado en $distPath\notifications-service.zip"
