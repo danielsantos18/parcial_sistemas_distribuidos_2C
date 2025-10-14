@@ -1,0 +1,32 @@
+<div class="container mt-4">
+  <h2>Catálogo de Servicios</h2>
+
+  <div *ngIf="loading" class="text-center mt-5">
+    <p>Cargando catálogo...</p>
+  </div>
+
+  <table *ngIf="!loading" class="table table-striped mt-3">
+    <thead>
+      <tr>
+        <th>Categoría</th>
+        <th>Proveedor</th>
+        <th>Servicio</th>
+        <th>Plan</th>
+        <th>Precio</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of services">
+        <td>{{ item.category }}</td>
+        <td>{{ item.provider }}</td>
+        <td>{{ item.service }}</td>
+        <td>{{ item.plan }}</td>
+        <td>${{ item.price }}</td>
+        <td>
+          <button class="btn btn-primary btn-sm">Pagar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
