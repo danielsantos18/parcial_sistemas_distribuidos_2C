@@ -6,7 +6,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { CatalogComponent } from './app/catalog/catalog.component';
-import { environment } from './app/environments/environment'; 
+import { environment } from './app/environments/environment';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async'; 
 
 if (environment.production) {
   enableProdMode();
@@ -14,6 +15,6 @@ if (environment.production) {
 
 bootstrapApplication(CatalogComponent, {
   providers: [
-    importProvidersFrom(HttpClientModule, MatTableModule, MatProgressSpinnerModule)
+    importProvidersFrom(HttpClientModule, MatTableModule, MatProgressSpinnerModule), provideAnimationsAsync('noop')
   ]
 }).catch(err => console.error(err));
