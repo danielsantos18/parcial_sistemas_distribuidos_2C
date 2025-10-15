@@ -1,30 +1,40 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CatalogService } from '../services/catalog.service';
+import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CatalogService, ServiceItem } from '../services/catalog.service'
 
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatTableModule, MatProgressSpinnerModule],
   templateUrl: './catalog.component.html',
-  styleUrls: ['./catalog.component.scss']
+  styleUrls: ['./catalog.component.css']
 })
 export class CatalogComponent implements OnInit {
-  services: any[] = [];
-  loading = true;
+  displayedColumns: string[] = ['id', 'name', 'description', 'price']; 
+  dataSource: ServiceItem[] = [];
+  isLoading = true;
+  errorMessage: string | null = null;
 
   constructor(private catalogService: CatalogService) {}
 
-  ngOnInit() {
-    this.catalogService.getCatalog().subscribe({
-      next: (data) => {
-        this.services = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error al obtener catálogo', err);
-        this.loading = false;
-      }
-    });
+  ngOnInit(): void {
+    this.loadCatalog();
   }
+
+loadCatalog(): void {
+  this.isLoading = true;
+  this.catalogService.getCatalog().subscribe({
+    next: (data: ServiceItem[]) => {  
+      this.dataSource = data;
+      this.isLoading = false;
+    },
+    error: (error: any) => { 
+      this.errorMessage = 'Error al cargar el catálogo. Intenta nuevamente.';
+      this.isLoading = false;
+      console.error('Error fetching catalog:', error);
+    }
+  });
+}
 }
