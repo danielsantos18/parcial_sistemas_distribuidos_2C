@@ -7,7 +7,6 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inferno.card_service.dto.CardPurchaseRequest;
 import com.inferno.card_service.dto.TransactionResponse;
-import com.inferno.card_service.model.Card;
 import com.inferno.card_service.service.CardService;
 import com.inferno.card_service.service.TransactionService;
 
@@ -30,13 +29,13 @@ public class CardPurchaseLambda implements RequestHandler<APIGatewayProxyRequest
         headers.put("Access-Control-Allow-Origin", "*");
 
         try {
-            // 🧩 Parsear body a DTO
+            //Parsear body a DTO
             CardPurchaseRequest purchaseRequest = objectMapper.readValue(request.getBody(), CardPurchaseRequest.class);
 
-            // ⚙️ Procesar compra
+            //Procesar compra
             TransactionResponse response = transactionService.purchase(purchaseRequest);
 
-            // ✅ Respuesta exitosa
+            //Respuesta exitosa
             String responseJson = objectMapper.writeValueAsString(response);
             return new APIGatewayProxyResponseEvent()
                     .withStatusCode(200)
@@ -44,8 +43,8 @@ public class CardPurchaseLambda implements RequestHandler<APIGatewayProxyRequest
                     .withBody(responseJson);
 
         } catch (RuntimeException e) {
-            // ⚠️ Errores de negocio (como "Insufficient funds")
-            context.getLogger().log("⚠️ Business Error: " + e.getMessage() + "\n");
+            //Errores de negocio (como "Insufficient funds")
+            context.getLogger().log("Business Error: " + e.getMessage() + "\n");
 
             Map<String, Object> errorBody = Map.of(
                     "status", "error",
@@ -64,10 +63,10 @@ public class CardPurchaseLambda implements RequestHandler<APIGatewayProxyRequest
             }
 
         } catch (Exception e) {
-            // ❌ Errores inesperados
+            //Errores inesperados
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
-            context.getLogger().log("❌ Unexpected Error: " + sw + "\n");
+            context.getLogger().log("Unexpected Error: " + sw + "\n");
 
             Map<String, Object> errorBody = Map.of(
                     "status", "error",

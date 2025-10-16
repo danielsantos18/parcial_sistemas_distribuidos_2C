@@ -1,3 +1,9 @@
+data "archive_file" "lambda_card_file" {
+  type        = "zip"
+  source_file = "${path.module}./target/card-service-0.0.1-SNAPSHOT.jar"
+  output_path = "${path.module}/${var.card_lambda_file_name}"
+}
+
 data "aws_iam_policy_document" "assume_role" {
   statement {
     effect = "Allow"
