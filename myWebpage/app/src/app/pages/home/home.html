@@ -1,0 +1,34 @@
+<app-navbar></app-navbar>
+
+<div class="container">
+  <header class="hero">
+    <div>
+      <h1>Inferno Bank</h1>
+      <p>Real-time payments — select a service and pay.</p>
+    </div>
+    <div class="user">
+        <span *ngIf="user">{{ user.name || user.firstName }}</span>
+        <button (click)="goToProfile()">Profile</button>
+    </div>
+  </header>
+
+  <section class="catalog">
+    <div *ngFor="let s of services" class="card" [class.selected]="selectedService?.id === s.id" (click)="selectService(s)">
+      <h3>{{ s.servicio }}</h3>
+      <p>{{ s.proveedor }} · {{ s.plan }}</p>
+      <p class="price">{{ s.precio_mensual | currency:'COP' }}</p>
+      <p class="details">{{ s.detalles }}</p>
+      <div class="card-footer">
+        <button (click)="startPayment(); $event.stopPropagation()" [disabled]="loading || polling">Pay</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="status" *ngIf="selectedService || traceId">
+    <h4>Payment status</h4>
+    <p *ngIf="selectedService"><strong>Service:</strong> {{ selectedService.servicio }} ({{ selectedService.plan }})</p>
+    <p *ngIf="traceId"><strong>TraceId:</strong> {{ traceId }}</p>
+    <p [class.success]="status === 'FINISH'" [class.error]="status === 'FAILED'">{{ message }}</p>
+    <div *ngIf="loading" class="spinner"></div>
+  </section>
+</div>

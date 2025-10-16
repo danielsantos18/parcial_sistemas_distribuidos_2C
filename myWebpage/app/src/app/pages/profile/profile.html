@@ -1,0 +1,17 @@
+<div class="profile-container" *ngIf="!loading && user; else loadingTemplate">
+  <div class="profile-card animate-fade">
+    <div class="avatar">
+      <img [src]="user.avatar || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'" alt="avatar" />
+    </div>
+
+    <h2>{{ user.name }} {{ user.lastName }}</h2>
+    <p class="email">{{ user.email }}</p>
+    <p class="doc">📄 {{ user.document }}</p>
+
+    <button class="btn-edit">Edit Profile</button>
+  </div>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading">Loading profile...</div>
+</ng-template>
