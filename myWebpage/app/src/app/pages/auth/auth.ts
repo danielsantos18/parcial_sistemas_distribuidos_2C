@@ -43,7 +43,7 @@ export class AuthComponent {
     this.authService.login(this.email, this.password).subscribe({
       next: (res: any) => {
         localStorage.setItem('user', JSON.stringify(res));
-        this.router.navigate(['/profile']);
+        this.router.navigate(['/home']);
       },
       error: () => {
         alert('Invalid credentials');
