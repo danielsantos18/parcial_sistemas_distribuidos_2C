@@ -100,66 +100,26 @@ output "catalog_bucket_name" {
   value = aws_s3_bucket.catalog_bucket.bucket
 }
 
-//COLAS SQS
-resource "aws_sqs_queue" "start_payment_queue" {
-  name                       = "start-payment-queue"
-  delay_seconds              = 5
-  visibility_timeout_seconds = 60
-}
-
-resource "aws_sqs_queue" "check_balance_queue" {
-  name                       = "check-balance-queue"
-  delay_seconds              = 5
-  visibility_timeout_seconds = 60
-}
-
-resource "aws_sqs_queue" "transaction_queue" {
-  name                       = "transaction-queue"
-  delay_seconds              = 5
-  visibility_timeout_seconds = 60
-}
-
-//ROLES
-resource "aws_iam_role" "lambda_role" {
-  name = "ExecutionLambaCatalog"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy" "lambda_policy" {
-  name   = "catalog-lambda-policy"
-  role   = aws_iam_role.lambda_role.id
-  policy = data.aws_iam_policy_document.lambda_policy_document.json
-}
-
-resource "aws_security_group" "lambda_sg" {
-  name        = "catalog-lambda-sg"
-  description = "Security group for lambda function"
-  vpc_id      = aws_vpc.main.id
-
-  egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-
 resource "null_resource" "lambda_build_trigger" {
   triggers = {
     build_number = timestamp()
+  }
+}
+
+#######################################
+# ========== TABLA DYNAMODB ==========
+#######################################
+
+resource "aws_dynamodb_table" "payment_table" {
+  name           = "payment-table"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 20
+  write_capacity = 20
+  hash_key       = "traceId"
+
+  attribute {
+    name = "traceId"
+    type = "S"
   }
 }
 
@@ -196,7 +156,117 @@ resource "aws_lambda_function" "CatalogUpdateLambda" {
   ]
 }
 
-//API GATEWAY
+//LAMBDA PARA OBTENER CATALOGO
+resource "aws_lambda_function" "CatalogGetLambda" {
+  filename      = "../target/catalog-service-lambda-jar-with-dependencies.jar"
+  function_name = "catalog-get-lambda"
+  handler       = "com.inferno.catalog_service.handler.CatalogGetLambda::handleRequest"
+  runtime       = "java17"
+  timeout       = 30
+  memory_size   = 256
+  role          = aws_iam_role.lambda_role.arn
+
+  vpc_config {
+    subnet_ids = aws_subnet.private[*].id
+    security_group_ids = [aws_security_group.lambda_sg.id]
+  }
+
+  environment {
+    variables = {
+      REDIS_ENDPOINT    = aws_elasticache_cluster.redis_cluster.cache_nodes[0].address
+      REDIS_URI         = "redis://${aws_elasticache_cluster.redis_cluster.cache_nodes[0].address}:${aws_elasticache_cluster.redis_cluster.port}"
+      REDIS_PORT        = aws_elasticache_cluster.redis_cluster.port
+      CATALOG_REDIS_KEY = "catalog:services"
+    }
+  }
+
+  depends_on = [
+    aws_iam_role_policy.lambda_policy,
+    aws_elasticache_cluster.redis_cluster
+  ]
+}
+
+//LAMBDA PARA PAGO
+resource "aws_lambda_function" "PaymentLambda" {
+  filename         = "../target/catalog-service-lambda-jar-with-dependencies.jar"
+  function_name    = "payment-lambda"
+  handler          = "com.inferno.catalog_service.handler.PaymentLambda::handleRequest"
+  runtime          = "java17"
+  timeout          = 90
+  memory_size      = 256
+  source_code_hash = "${filebase64sha256("../target/catalog-service-lambda-jar-with-dependencies.jar")}-${null_resource.lambda_build_trigger.id}"
+  role             = aws_iam_role.lambda_role.arn
+
+  environment {
+    variables = {
+      START_PAYMENT_QUEUE_URL = aws_sqs_queue.start_payment_queue.url
+    }
+  }
+}
+
+//LAMBDA PARA EMPEZAR CON EL PROCESO DE PAGO
+resource "aws_lambda_function" "StartPaymentLambda" {
+  filename         = "../target/catalog-service-lambda-jar-with-dependencies.jar"
+  function_name    = "start-payment-lambda"
+  handler          = "com.inferno.catalog_service.handler.StartPaymentLambda::handleRequest"
+  runtime          = "java17"
+  timeout          = 90
+  memory_size      = 256
+  source_code_hash = "${filebase64sha256("../target/catalog-service-lambda-jar-with-dependencies.jar")}-${null_resource.lambda_build_trigger.id}"
+  role             = aws_iam_role.lambda_role.arn
+
+  environment {
+    variables = {
+      START_PAYMENT_QUEUE_URL = aws_sqs_queue.start_payment_queue.url
+      CHECK_BALANCE_QUEUE_URL = aws_sqs_queue.check_balance_queue.url
+      PAYMENT_TABLE           = "payment-table"
+      CARD_API_BASE_URL       = "https://jo9pd89ssf.execute-api.us-east-2.amazonaws.com/card/profile/"
+    }
+  }
+}
+
+//LAMBDA PARA EMPEZAR CON EL PROCESO DE PAGO
+resource "aws_lambda_function" "CheckBalanceLambda" {
+  filename         = "../target/catalog-service-lambda-jar-with-dependencies.jar"
+  function_name    = "check-balance-lambda"
+  handler          = "com.inferno.catalog_service.handler.CheckBalanceLambda::handleRequest"
+  runtime          = "java17"
+  timeout          = 90
+  memory_size      = 256
+  source_code_hash = "${filebase64sha256("../target/catalog-service-lambda-jar-with-dependencies.jar")}-${null_resource.lambda_build_trigger.id}"
+  role             = aws_iam_role.lambda_role.arn
+
+  environment {
+    variables = {
+      CHECK_BALANCE_QUEUE_URL = aws_sqs_queue.check_balance_queue.url
+      TRANSACTION_QUEUE_URL   = aws_sqs_queue.transaction_queue.url
+      PAYMENT_TABLE           = "payment-table"
+      CARD_API_BASE_URL       = "https://jo9pd89ssf.execute-api.us-east-2.amazonaws.com"
+    }
+  }
+}
+
+//LAMBDA PARA TERMINAR CON EL PROCESO DE PAGO
+resource "aws_lambda_function" "TransactionLambda" {
+  filename         = "../target/catalog-service-lambda-jar-with-dependencies.jar"
+  function_name    = "transaction-lambda"
+  handler          = "com.inferno.catalog_service.handler.TransactionLambda::handleRequest"
+  runtime          = "java17"
+  timeout          = 90
+  memory_size      = 256
+  source_code_hash = "${filebase64sha256("../target/catalog-service-lambda-jar-with-dependencies.jar")}-${null_resource.lambda_build_trigger.id}"
+  role             = aws_iam_role.lambda_role.arn
+
+  environment {
+    variables = {
+      TRANSACTION_QUEUE_URL    = aws_sqs_queue.transaction_queue.url
+      PAYMENT_TABLE            = "payment-table"
+      TRANSACTION_API_BASE_URL = "https://v5h6q897r2.execute-api.us-east-2.amazonaws.com/transaction/purchase"
+    }
+  }
+}
+
+//API GATEWAY PARA ACTUALIZAR CATALOGO
 resource "aws_api_gateway_rest_api" "CatalogUpdateApi" {
   name        = "catalog update api "
   description = "esta api gateway sirve para subir el csv del catalogo de servicios a redis"
@@ -259,38 +329,7 @@ output "apiUrlCatalogUpdate" {
   value = "${aws_api_gateway_stage.StagCatalogUpdate.invoke_url}/${aws_api_gateway_resource.CatalogUpdateResource.path_part}"
 }
 
-//LAMBDA PARA OBTENER CATALOGO
-resource "aws_lambda_function" "CatalogGetLambda" {
-  filename      = "../target/catalog-service-lambda-jar-with-dependencies.jar"
-  function_name = "catalog-get-lambda"
-  handler       = "com.inferno.catalog_service.handler.CatalogGetLambda::handleRequest"
-  runtime       = "java17"
-  timeout       = 30
-  memory_size   = 256
-  role          = aws_iam_role.lambda_role.arn
-
-  vpc_config {
-    subnet_ids = aws_subnet.private[*].id
-    security_group_ids = [aws_security_group.lambda_sg.id]
-  }
-
-  environment {
-    variables = {
-      REDIS_ENDPOINT    = aws_elasticache_cluster.redis_cluster.cache_nodes[0].address
-      REDIS_URI         = "redis://${aws_elasticache_cluster.redis_cluster.cache_nodes[0].address}:${aws_elasticache_cluster.redis_cluster.port}"
-      REDIS_PORT        = aws_elasticache_cluster.redis_cluster.port
-      CATALOG_REDIS_KEY = "catalog:services"
-    }
-  }
-
-  depends_on = [
-    aws_iam_role_policy.lambda_policy,
-    aws_elasticache_cluster.redis_cluster
-  ]
-}
-
 //API GATEWAY PARA OBTENER CATALOGO
-
 resource "aws_api_gateway_rest_api" "CatalogGetApi" {
   name        = "catalog get api "
   description = "esta api gateway sirve para obtener el csv del catalogo de servicios a redis"
@@ -350,5 +389,200 @@ output "apiUrlCatalogGet" {
   value = "${aws_api_gateway_stage.StageCatalogGet.invoke_url}/catalog"
 }
 
-//SQS FLUJO
+//API GATEWAY PARA INICIAR PAGO DE SERVICIO
+resource "aws_api_gateway_rest_api" "PaymentApi" {
+  name        = "payment api "
+  description = "esta api gateway sirve para pagar los servicios"
+}
 
+//Resource Api Gateway
+resource "aws_api_gateway_resource" "PaymentResource" {
+  rest_api_id = aws_api_gateway_rest_api.PaymentApi.id
+  parent_id   = aws_api_gateway_rest_api.PaymentApi.root_resource_id
+  path_part   = "payment"
+}
+
+//Method Del Api Gateway
+resource "aws_api_gateway_method" "MethodPayment" {
+  resource_id = aws_api_gateway_resource.PaymentResource.id
+  //Debe Apuntar Al Recurso Donde Define El Parameter uuid
+  rest_api_id   = aws_api_gateway_rest_api.PaymentApi.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+//Connect Del Api A Lambda
+resource "aws_api_gateway_integration" "IntegrationPayment" {
+  rest_api_id = aws_api_gateway_rest_api.PaymentApi.id
+  resource_id = aws_api_gateway_resource.PaymentResource.id
+  //Debe Apuntar Al Recurso Donde Define El Parameter uuid
+  http_method = aws_api_gateway_method.MethodPayment.http_method
+  //consultar metodos de integracion entre api y lambda
+  integration_http_method = "POST"  // Lambda siempre usa POST
+  type        = "AWS_PROXY"
+  uri         = aws_lambda_function.PaymentLambda.invoke_arn
+}
+
+//Connect De La Lambda A Api
+resource "aws_lambda_permission" "ApiGwLambdaPayment" {
+  statement_id  = "AllowExcutionFromAPIGatewayPayment"
+  action        = "lambda:InvokeFunction"
+  function_name = "payment-lambda"
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.PaymentApi.execution_arn}/*/POST/payment"
+}
+
+//Deploy De La Api
+resource "aws_api_gateway_deployment" "deploymentPaymentEndpoint" {
+  rest_api_id = aws_api_gateway_rest_api.PaymentApi.id
+  depends_on = [aws_api_gateway_integration.IntegrationPayment, aws_lambda_permission.ApiGwLambdaPayment]
+}
+
+//stage -> dev,qa,pre-production
+resource "aws_api_gateway_stage" "StagePayment" {
+  deployment_id = aws_api_gateway_deployment.deploymentPaymentEndpoint.id
+  rest_api_id   = aws_api_gateway_rest_api.PaymentApi.id
+  stage_name    = var.catalog_stage
+}
+
+output "apiUrlPayment" {
+  value = "${aws_api_gateway_stage.StagePayment.invoke_url}/payment"
+}
+
+//ROLES
+resource "aws_iam_role" "lambda_role" {
+  name = "ExecutionLambaCatalog"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "lambda_policy" {
+  name   = "catalog-lambda-policy"
+  role   = aws_iam_role.lambda_role.id
+  policy = data.aws_iam_policy_document.lambda_policy_document.json
+}
+
+# Permisos para que las Lambdas puedan enviar mensajes a las colas SQS
+resource "aws_iam_role_policy" "lambda_sqs_permissions" {
+  name = "lambda-sqs-send-permission"
+  role = aws_iam_role.lambda_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowSendMessageToQueues"
+        Effect = "Allow"
+        Action = [
+          "sqs:SendMessage",
+          "sqs:GetQueueUrl",
+          "sqs:GetQueueAttributes",
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+          "sqs:ChangeMessageVisibility"
+        ]
+        Resource = [
+          aws_sqs_queue.start_payment_queue.arn,
+          aws_sqs_queue.check_balance_queue.arn,
+          aws_sqs_queue.transaction_queue.arn
+        ]
+      }
+    ]
+  })
+}
+
+//PERMISOS PARA DYNAMODB
+resource "aws_iam_role_policy" "lambda_dynamodb_permissions" {
+  name = "lambda-dynamodb-access"
+  role = aws_iam_role.lambda_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowDynamoDBWriteAndRead"
+        Effect = "Allow"
+        Action = [
+          "dynamodb:PutItem",
+          "dynamodb:GetItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:Scan",
+          "dynamodb:Query",
+          "dynamodb:DeleteItem"
+        ]
+        Resource = "arn:aws:dynamodb:us-east-2:${data.aws_caller_identity.current.account_id}:table/payment-table"
+      }
+    ]
+  })
+}
+
+resource "aws_security_group" "lambda_sg" {
+  name        = "catalog-lambda-sg"
+  description = "Security group for lambda function"
+  vpc_id      = aws_vpc.main.id
+
+  egress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+//SQS FLUJO
+#######################################
+# COLAS SQS PARA PROCESO DE PAGO
+#######################################
+resource "aws_sqs_queue" "start_payment_queue" {
+  name                       = "start-payment-queue"
+  delay_seconds              = 5
+  visibility_timeout_seconds = 120
+}
+
+resource "aws_sqs_queue" "check_balance_queue" {
+  name                       = "check-balance-queue"
+  delay_seconds              = 5
+  visibility_timeout_seconds = 120
+}
+
+resource "aws_sqs_queue" "transaction_queue" {
+  name                       = "transaction-queue"
+  delay_seconds              = 5
+  visibility_timeout_seconds = 120
+}
+
+#######################################
+# PERMISOS ENTRE SQS Y LAMBDA
+#######################################
+resource "aws_lambda_event_source_mapping" "StartPaymentMapping" {
+  event_source_arn = aws_sqs_queue.start_payment_queue.arn
+  function_name    = aws_lambda_function.StartPaymentLambda.arn
+  batch_size       = 1
+  enabled          = true
+}
+
+resource "aws_lambda_event_source_mapping" "CheckBalanceMapping" {
+  event_source_arn = aws_sqs_queue.check_balance_queue.arn
+  function_name    = aws_lambda_function.CheckBalanceLambda.arn
+  batch_size       = 1
+  enabled          = true
+}
+
+resource "aws_lambda_event_source_mapping" "TransactionMapping" {
+  event_source_arn = aws_sqs_queue.transaction_queue.arn
+  function_name    = aws_lambda_function.TransactionLambda.arn
+  batch_size       = 1
+  enabled          = true
+}
