@@ -1,1 +1,20 @@
-<p>navbar works!</p>
+<nav class="navbar glass fade-in">
+  <div class="nav-inner">
+    <div class="brand" routerLink="/dashboard">
+      <img src="https://cdn-icons-png.flaticon.com/512/2920/2920320.png" alt="InfernoBank" />
+      <span>Inferno<span class="highlight">Bank</span></span>
+    </div>
+
+    <ul class="nav-links">
+      <li><a routerLink="/home" routerLinkActive="active">Inicio</a></li>
+      
+      <li><a routerLink="/cards" routerLinkActive="active">Tarjetas</a></li>
+      <li><a routerLink="/payments" routerLinkActive="active">Pagos</a></li>
+      <li><a routerLink="/dashboard" routerLinkActive="active">Dashboard</a></li>
+      <li><a routerLink="/support" routerLinkActive="active">Soporte</a></li>
+      <li><a routerLink="/profile" routerLinkActive="active">Perfil</a></li>
+    </ul>
+
+    <button class="logout" (click)="logout()">Salir</button>
+  </div>
+</nav>

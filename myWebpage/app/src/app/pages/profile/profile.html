@@ -1,17 +1,15 @@
-<div class="profile-container" *ngIf="!loading && user; else loadingTemplate">
-  <div class="profile-card animate-fade">
-    <div class="avatar">
-      <img [src]="user.avatar || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'" alt="avatar" />
+<app-navbar></app-navbar>
+
+<div class="profile-wrap fade-in">
+  <div class="profile-card glass">
+    <h2>Mi Perfil</h2>
+
+    <div class="info">
+      <p><strong>Nombre:</strong> {{ user?.name }}</p>
+      <p><strong>Correo:</strong> {{ user?.email }}</p>
+      <p><strong>ID:</strong> {{ user?.id }}</p>
     </div>
 
-    <h2>{{ user.name }} {{ user.lastName }}</h2>
-    <p class="email">{{ user.email }}</p>
-    <p class="doc">📄 {{ user.document }}</p>
-
-    <button class="btn-edit">Edit Profile</button>
+    <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
   </div>
 </div>
-
-<ng-template #loadingTemplate>
-  <div class="loading">Loading profile...</div>
-</ng-template>

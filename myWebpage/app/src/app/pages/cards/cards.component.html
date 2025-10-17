@@ -1,0 +1,34 @@
+<app-navbar></app-navbar>
+
+<div class="cards-container fade-in">
+  <div class="header">
+    <h2>Mis Tarjetas</h2>
+    <button class="add-btn" (click)="addCard()">+ Nueva tarjeta</button>
+  </div>
+
+  <div class="card-list">
+    <div *ngFor="let c of cards" class="credit-card" [style.background]="c.color">
+      <div class="card-header">
+        <img src="https://cdn-icons-png.flaticon.com/512/825/825539.png" class="chip" />
+        <span class="type">{{ c.tipo }}</span>
+      </div>
+
+      <div class="card-number">{{ c.numero }}</div>
+
+      <div class="card-footer">
+        <div>
+          <p class="label">Titular</p>
+          <p class="value">{{ c.titular }}</p>
+        </div>
+        <div>
+          <p class="label">Expira</p>
+          <p class="value">{{ c.expira }}</p>
+        </div>
+      </div>
+
+      <button class="state-btn" (click)="toggle(c)">
+        {{ c.activa ? 'Bloquear tarjeta' : 'Desbloquear tarjeta' }}
+      </button>
+    </div>
+  </div>
+</div>

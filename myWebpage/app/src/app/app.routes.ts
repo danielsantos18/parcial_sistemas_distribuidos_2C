@@ -1,17 +1,15 @@
+// src/app/app.routes.ts
 import { Routes } from '@angular/router';
-import { LoginComponent } from './pages/login/login';
-import { RegisterComponent } from './pages/register/register';
-import { ProfileComponent } from './pages/profile/profile';
-import { AuthComponent } from './pages/auth/auth';
-import { HomeComponent } from './pages/home/home';
-
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'auth', pathMatch: 'full' },
-  { path: 'auth', component: AuthComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'home', component: HomeComponent },
-  { path: 'profile', component: ProfileComponent },
-  { path: '**', redirectTo: 'auth' }
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: 'home', loadComponent: () => import('./pages/home/home').then(c => c.HomeComponent) },
+  { path: 'login', loadComponent: () => import('./pages/login/login').then(c => c.LoginComponent) },
+  { path: 'profile', loadComponent: () => import('./pages/profile/profile').then(c => c.ProfileComponent) },
+  { path: 'register', loadComponent: () => import('./pages/register/register').then(c => c.RegisterComponent) },
+  { path: 'dashboard', loadComponent: () => import('../app/pages/dashboard/dashboard.component').then(c => c.DashboardComponent) },
+  { path: 'cards', loadComponent: () => import('../app/pages/cards/cards.component').then(c => c.CardsComponent) },
+  { path: 'payments', loadComponent: () => import('../app/pages/payments/payments.component').then(c => c.PaymentsComponent) },
+  { path: 'support', loadComponent: () => import('../app/pages/support/support.component').then(c => c.SupportComponent) },
+  { path: '**', redirectTo: 'home' }
 ];

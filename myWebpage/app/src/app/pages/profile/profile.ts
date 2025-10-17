@@ -1,37 +1,27 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-
+import { NavbarComponent } from '../../shared/components/navbar/navbar';
+import { AuthService, User } from '../../services/auth';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NavbarComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
 })
 export class ProfileComponent implements OnInit {
-  user: any = null;
-  loading = true;
+  user: User | null = null;
 
-
-  constructor(private http: HttpClient) {}
-
+  constructor(private auth: AuthService, private router: Router) {}
 
   ngOnInit() {
-    const userId = 'e25851fb-b263-48e9-bb97-90b27c2a8bd8';
-    const url = `https://v7hjhcn0ej.execute-api.us-east-2.amazonaws.com/users/profile/${userId}`;
+    this.auth.getProfile().subscribe(u => (this.user = u));
+  }
 
-
-    this.http.get(url).subscribe({
-      next: (res: any) => {
-        this.user = res;
-        this.loading = false;
-      },
-      error: (err: any) => {
-        console.error('Error loading profile', err);
-        this.loading = false;
-      }
-    });
+  logout() {
+    localStorage.clear();
+    this.router.navigate(['/login']);
   }
 }

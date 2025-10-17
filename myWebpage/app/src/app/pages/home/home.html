@@ -1,34 +1,30 @@
 <app-navbar></app-navbar>
 
-<div class="container">
-  <header class="hero">
-    <div>
-      <h1>Inferno Bank</h1>
-      <p>Real-time payments — select a service and pay.</p>
-    </div>
-    <div class="user">
-        <span *ngIf="user">{{ user.name || user.firstName }}</span>
-        <button (click)="goToProfile()">Profile</button>
-    </div>
-  </header>
+<header class="hero fade-in">
+  <div class="content">
+    <h1>Pagos inteligentes en tiempo real</h1>
+    <p>Con InfernoBank, administra tus servicios y realiza pagos seguros y veloces.</p>
+  </div>
+</header>
 
+<main class="container fade-in">
   <section class="catalog">
-    <div *ngFor="let s of services" class="card" [class.selected]="selectedService?.id === s.id" (click)="selectService(s)">
-      <h3>{{ s.servicio }}</h3>
-      <p>{{ s.proveedor }} · {{ s.plan }}</p>
-      <p class="price">{{ s.precio_mensual | currency:'COP' }}</p>
-      <p class="details">{{ s.detalles }}</p>
-      <div class="card-footer">
-        <button (click)="startPayment(); $event.stopPropagation()" [disabled]="loading || polling">Pay</button>
+    <div *ngFor="let s of services" class="card glass" (click)="select(s)" [class.selected]="selected?.id===s.id">
+      <div class="info">
+        <h3>{{ s.servicio }}</h3>
+        <p>{{ s.proveedor }} · {{ s.plan }}</p>
+        <span class="price">{{ s.precio_mensual | currency:'COP' }}</span>
       </div>
+      <button (click)="pay(s); $event.stopPropagation()">Pagar</button>
     </div>
   </section>
 
-  <section class="status" *ngIf="selectedService || traceId">
-    <h4>Payment status</h4>
-    <p *ngIf="selectedService"><strong>Service:</strong> {{ selectedService.servicio }} ({{ selectedService.plan }})</p>
-    <p *ngIf="traceId"><strong>TraceId:</strong> {{ traceId }}</p>
-    <p [class.success]="status === 'FINISH'" [class.error]="status === 'FAILED'">{{ message }}</p>
-    <div *ngIf="loading" class="spinner"></div>
-  </section>
-</div>
+  <aside *ngIf="selected" class="preview glass fade-in">
+    <h4>Resumen de pago</h4>
+    <p><strong>Servicio:</strong> {{ selected.servicio }}</p>
+    <p><strong>Proveedor:</strong> {{ selected.proveedor }}</p>
+    <p><strong>Plan:</strong> {{ selected.plan }}</p>
+    <p class="price">{{ selected.precio_mensual | currency:'COP' }}</p>
+    <button class="confirm" (click)="pay(selected)">Confirmar pago</button>
+  </aside>
+</main>

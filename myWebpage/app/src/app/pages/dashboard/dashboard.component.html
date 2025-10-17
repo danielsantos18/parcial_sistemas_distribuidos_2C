@@ -1,0 +1,20 @@
+<app-navbar></app-navbar>
+
+<div class="dashboard fade-in">
+  <section class="welcome glass">
+    <h2>Bienvenido, {{ user.name }}</h2>
+    <p>Saldo disponible:</p>
+    <h3>{{ user.saldo | currency:'COP' }}</h3>
+  </section>
+
+  <section class="recent glass">
+    <h3>Pagos recientes</h3>
+    <ul>
+      <li *ngFor="let r of recent">
+        <span>{{ r.servicio }}</span>
+        <span>{{ r.monto | currency:'COP' }}</span>
+        <span>{{ r.fecha }}</span>
+      </li>
+    </ul>
+  </section>
+</div>

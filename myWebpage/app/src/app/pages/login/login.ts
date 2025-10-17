@@ -1,17 +1,14 @@
+// src/app/pages/login/login.ts
 import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth';
-import { Router } from '@angular/router';
-
-
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-
+import { RouterModule, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms'; // ✅ IMPORTA ESTO
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule], // ✅ AGREGA FormsModule AQUÍ
   templateUrl: './login.html',
   styleUrls: ['./login.scss']
 })
@@ -20,21 +17,13 @@ export class LoginComponent {
   password = '';
   loading = false;
 
+  constructor(private auth: AuthService, private router: Router) {}
 
-  constructor(private authService: AuthService, private router: Router) {}
-
-
-  onLogin() {
+  submit() {
     this.loading = true;
-    this.authService.login(this.email, this.password).subscribe({
-      next: (res: any) => {
-      localStorage.setItem('user', JSON.stringify(res));
-      this.router.navigate(['/profile']);
-      },
-      error: () => {
-        alert('Invalid email or password');
-        this.loading = false;
-      }
+    this.auth.login(this.email, this.password).subscribe(user => {
+      localStorage.setItem('user', JSON.stringify(user));
+      this.router.navigate(['/home']);
     });
   }
 }

@@ -1,0 +1,26 @@
+<app-navbar></app-navbar>
+
+<div class="payments-page fade-in">
+  <h2>Historial de Pagos</h2>
+
+  <table class="glass">
+    <thead>
+      <tr>
+        <th>Servicio</th>
+        <th>Monto</th>
+        <th>Fecha</th>
+        <th>TraceId</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of pagos">
+        <td>{{ p.servicio }}</td>
+        <td>{{ p.monto | currency:'COP' }}</td>
+        <td>{{ p.fecha }}</td>
+        <td>{{ p.traceId }}</td>
+        <td [class.ok]="p.estado==='Aprobado'">{{ p.estado }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

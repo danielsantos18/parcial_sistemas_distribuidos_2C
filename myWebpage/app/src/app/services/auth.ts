@@ -1,41 +1,35 @@
+// src/app/services/auth.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
-export interface UserProfile {
-  id?: string;
-  name?: string;
-  email?: string;
-  // add other known fields here
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  token?: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  private registerUrl = 'https://sdamtp8yo3.execute-api.us-east-2.amazonaws.com/users/register';
-  private profileUrl = 'https://v7hjhcn0ej.execute-api.us-east-2.amazonaws.com/users/profile';
-  // ⚠️ You don't have a specific login endpoint in the JSON, so we can simulate login by checking existing users or mocking it.
+  private mockUser: User = { id: 'u1', name: 'Usuario Demo', email: 'demo@ejemplo.com', token: 'mock-token-123' };
 
-  constructor(private http: HttpClient) {}
+  constructor() {}
 
-  register(data: any): Observable<any> {
-    return this.http.post(this.registerUrl, data);
+  login(email: string, password: string): Observable<User> {
+    // mock: acepta cualquier credencial; cuando tengas backend, usa HttpClient.post(...)
+    return of(this.mockUser);
   }
 
-  // mock login example — replace later with your real backend login endpoint
-  login(email: string, password: string): Observable<UserProfile> {
-    // simulate authentication by returning the profile resource (typed)
-    return this.http.get<UserProfile>(`${this.profileUrl}/e25851fb-b263-48e9-bb97-90b27c2a8bd8`);
+  register(name: string, email: string, password: string): Observable<User> {
+    return of({ id: 'u2', name, email, token: 'mock-token-register' });
   }
 
-  getProfile(userId: string): Observable<any> {
-    return this.http.get(`${this.profileUrl}/${userId}`);
+  getProfile(): Observable<User> {
+    return of(this.mockUser);
   }
 
-  updateProfile(userId: string, data: any): Observable<any> {
-    const url = `https://dppejwy8a1.execute-api.us-east-2.amazonaws.com/users/profile/${userId}`;
-    return this.http.put(url, data);
+  logout() {
+    // limpia localStorage en la app real
+    localStorage.removeItem('user');
   }
 }

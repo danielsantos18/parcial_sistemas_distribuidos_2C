@@ -1,0 +1,11 @@
+.payments-page {
+  padding: 2rem;
+  text-align: center;
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    th, td { padding: 0.8rem; border-bottom: 1px solid var(--border); }
+    .ok { color: var(--primary); font-weight: 600; }
+  }
+}
