@@ -3,11 +3,18 @@
 <div class="cards-container fade-in">
   <div class="header">
     <h2>Mis Tarjetas</h2>
-    <button class="add-btn" (click)="addCard()">+ Nueva tarjeta</button>
+    <button class="add-btn" (click)="nuevaTarjeta()">+ Nueva tarjeta</button>
+
   </div>
 
   <div class="card-list">
-    <div *ngFor="let c of cards" class="credit-card" [style.background]="c.color">
+    <div
+      *ngFor="let c of cards"
+      class="credit-card"
+      [style.background]="c.color"
+      (click)="select(c)"
+      [class.selected]="selected?.id === c.id"
+    >
       <div class="card-header">
         <img src="https://cdn-icons-png.flaticon.com/512/825/825539.png" class="chip" />
         <span class="type">{{ c.tipo }}</span>
@@ -25,10 +32,30 @@
           <p class="value">{{ c.expira }}</p>
         </div>
       </div>
+    </div>
+  </div>
 
-      <button class="state-btn" (click)="toggle(c)">
-        {{ c.activa ? 'Bloquear tarjeta' : 'Desbloquear tarjeta' }}
+  <div class="controls glass fade-in">
+    <h3>Gestión de Tarjeta</h3>
+
+    <div class="info">
+      <p><strong>Seleccionada:</strong> {{ selected.tipo }}</p>
+      <p><strong>Saldo actual:</strong> {{ selected.saldo | currency:'COP' }}</p>
+      <p><strong>Estado:</strong>
+        <span [class.activa]="selected.activa">{{ selected.activa ? 'Activa' : 'Bloqueada' }}</span>
+      </p>
+    </div>
+
+    <div class="actions">
+      <button class="toggle" (click)="toggle(selected)">
+        {{ selected.activa ? 'Bloquear tarjeta' : 'Desbloquear tarjeta' }}
       </button>
+
+      <div class="recarga">
+        <label>Monto a recargar (COP):</label>
+        <input type="number" [(ngModel)]="recarga" placeholder="Ej: 50000" />
+        <button class="recargar" (click)="recargar()">Recargar</button>
+      </div>
     </div>
   </div>
 </div>
