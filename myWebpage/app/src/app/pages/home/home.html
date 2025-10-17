@@ -7,24 +7,27 @@
   </div>
 </header>
 
-<main class="container fade-in">
-  <section class="catalog">
-    <div *ngFor="let s of services" class="card glass" (click)="select(s)" [class.selected]="selected?.id===s.id">
-      <div class="info">
-        <h3>{{ s.servicio }}</h3>
-        <p>{{ s.proveedor }} · {{ s.plan }}</p>
-        <span class="price">{{ s.precio_mensual | currency:'COP' }}</span>
-      </div>
-      <button (click)="pay(s); $event.stopPropagation()">Pagar</button>
+<div class="home-container glass fade-in">
+  <h1>Bienvenido a tu banca digital</h1>
+
+  <!-- Botones principales -->
+  <div class="quick-actions">
+    <button class="btn-primary" (click)="goTo('/catalog')">💡 Pagar Servicios</button>
+    <button class="btn-primary" (click)="goTo('/payments')">💳 Pagar Tarjeta</button>
+  </div>
+
+  <!-- Transferencias recientes -->
+  <section class="recent-transfers glass">
+    <h2>Transferencias recientes</h2>
+    <ul>
+      <li *ngFor="let t of recentTransfers">
+        <span class="who">{{ t.destinatario }}</span>
+        <span class="amount">{{ t.monto | currency:'COP' }}</span>
+        <span class="date">{{ t.fecha }}</span>
+      </li>
+    </ul>
+    <div class="see-more">
+      <a routerLink="/payments">Ver todas</a>
     </div>
   </section>
-
-  <aside *ngIf="selected" class="preview glass fade-in">
-    <h4>Resumen de pago</h4>
-    <p><strong>Servicio:</strong> {{ selected.servicio }}</p>
-    <p><strong>Proveedor:</strong> {{ selected.proveedor }}</p>
-    <p><strong>Plan:</strong> {{ selected.plan }}</p>
-    <p class="price">{{ selected.precio_mensual | currency:'COP' }}</p>
-    <button class="confirm" (click)="pay(selected)">Confirmar pago</button>
-  </aside>
-</main>
+</div>

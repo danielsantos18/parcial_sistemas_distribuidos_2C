@@ -1,7 +1,6 @@
-// src/app/pages/home/home.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CatalogService, ServiceItem } from '../../services/catalog.service';
+import { Router } from '@angular/router';
 import { NavbarComponent } from '../../shared/components/navbar/navbar';
 
 @Component({
@@ -12,30 +11,17 @@ import { NavbarComponent } from '../../shared/components/navbar/navbar';
   styleUrls: ['./home.scss']
 })
 export class HomeComponent implements OnInit {
-  services: ServiceItem[] = [];
-  selected: ServiceItem | null = null;
-  loading = false;
+  recentTransfers = [
+    { id: 1, destinatario: 'Juan Pérez', monto: 120000, fecha: '15/10/2025' },
+    { id: 2, destinatario: 'María Gómez', monto: 75000, fecha: '13/10/2025' },
+    { id: 3, destinatario: 'Electricaribe', monto: 95000, fecha: '10/10/2025' }
+  ];
 
-  constructor(private catalog: CatalogService) {}
+  constructor(private router: Router) {}
 
-  ngOnInit() {
-    this.load();
-  }
+  ngOnInit(): void {}
 
-  load() {
-    this.loading = true;
-    this.catalog.getCatalog().subscribe(list => {
-      this.services = list;
-      this.loading = false;
-    });
-  }
-
-  select(s: ServiceItem) {
-    this.selected = s;
-  }
-
-  // mock de inicio de pago visual
-  pay(service: ServiceItem) {
-    alert(`Simulando pago de ${service.servicio} - ${service.precio_mensual}`);
+  goTo(route: string): void {
+    this.router.navigate([route]);
   }
 }
