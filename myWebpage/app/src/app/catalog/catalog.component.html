@@ -1,47 +1,40 @@
-<div class="catalog-container">
+<app-navbar></app-navbar>
+
+<div class="catalog-container glass fade-in">
   <h2>Catálogo de Servicios</h2>
-  
-  <ng-container *ngIf="isLoading; else catalogTable">
-    <mat-spinner></mat-spinner>
-    <p>Cargando catálogo...</p>
+
+  <!-- Buscador -->
+  <mat-form-field appearance="outline" class="search-input">
+    <mat-label>Buscar servicio</mat-label>
+    <input matInput [(ngModel)]="searchTerm" (input)="filterCatalog()" placeholder="Ej: Internet, Energía, TV">
+  </mat-form-field>
+
+  <!-- Loader -->
+  <ng-container *ngIf="isLoading; else contentTpl">
+    <div class="loading">
+      <mat-spinner></mat-spinner>
+      <p>Cargando catálogo...</p>
+    </div>
   </ng-container>
 
-  <ng-template #catalogTable>
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-      <!-- Columna ID -->
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef> ID </th>
-        <td mat-cell *matCellDef="let element"> {{element.id}} </td>
-      </ng-container>
+  <ng-template #contentTpl>
+    <div *ngIf="errorMessage" class="error-message glass">{{ errorMessage }}</div>
 
-      <!-- Columna Nombre -->
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef> Nombre </th>
-        <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-      </ng-container>
-
-      <!-- Columna Descripción -->
-      <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef> Descripción </th>
-        <td mat-cell *matCellDef="let element"> {{element.description}} </td>
-      </ng-container>
-
-      <!-- Columna Precio -->
-      <ng-container matColumnDef="price">
-        <th mat-header-cell *matHeaderCellDef> Precio </th>
-        <td mat-cell *matCellDef="let element"> ${{element.price | number:'1.2-2'}} </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-
-    <div *ngIf="dataSource.length === 0" class="no-data">
-      No hay servicios disponibles en el catálogo.
+    <!-- Vista en cards -->
+    <div class="cards-grid" *ngIf="filteredData.length > 0; else noDataTpl">
+      <div class="service-card glass fade-in" *ngFor="let item of filteredData">
+        <h3>{{ item.name || item.servicio }}</h3>
+        <p class="desc">{{ item.description || item.detalles }}</p>
+        <p class="price">{{ (item.price ?? item.precio_mensual) | currency:'COP' }}</p>
+        <div class="actions">
+          <button mat-raised-button color="primary" (click)="pay(item)">Pagar</button>
+          <button mat-stroked-button color="accent" (click)="viewDetails(item)">Detalles</button>
+        </div>
+      </div>
     </div>
-  </ng-template>
 
-  <div *ngIf="errorMessage" class="error-message">
-    {{errorMessage}}
-  </div>
+    <ng-template #noDataTpl>
+      <div class="no-data glass">No hay servicios disponibles.</div>
+    </ng-template>
+  </ng-template>
 </div>

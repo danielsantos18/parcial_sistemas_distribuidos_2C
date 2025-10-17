@@ -1,37 +1,146 @@
 // src/app/services/catalog.service.ts
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { environment } from '../environments/environment';
 
+/**
+ * Interfaz que incluye los campos usados por Home (servicio/precio_mensual)
+ * y por el Catalog original (name/description/price). Así mantenemos compatibilidad.
+ */
 export interface ServiceItem {
   id: number;
-  categoria: string;
-  proveedor: string;
-  servicio: string;
-  plan: string;
-  precio_mensual: number;
+  // formato "catalog (nuevo/amigo)"
+  name?: string;
+  description?: string;
+  price?: number;
+  // formato "home (original)"
+  servicio?: string;
+  proveedor?: string;
+  plan?: string;
+  precio_mensual?: number;
   detalles?: string;
   estado?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class CatalogService {
-  // para desarrollo usamos mock; al conectar backend reemplaza por HttpClient.get(`${environment.apiBase}/catalog`)
+  // mock seguro y limpio (he eliminado entradas inadecuadas)
   private mock: ServiceItem[] = [
-    { id: 1, categoria: 'internet', proveedor: 'Claro', servicio: 'Fibra 200', plan: 'MENSUAL', precio_mensual: 120000, detalles: '200 Mbps simétricos', estado: 'activo' },
-    { id: 2, categoria: 'energia', proveedor: 'EnergíaCo', servicio: 'Plan Hogar', plan: 'MENSUAL', precio_mensual: 85000, detalles: 'Factura mensual', estado: 'activo' },
-    { id: 3, categoria: 'tv', proveedor: 'CableMax', servicio: 'Paquete Premium', plan: 'MENSUAL', precio_mensual: 65000, detalles: 'Incluye streaming', estado: 'activo' },
-    { id: 3, categoria: 'sex on the bitch', proveedor: 'el daniel', servicio: 'chicas lindas ', plan: 'MENSUAL', precio_mensual: 50000, detalles: 'Incluye oral y vaginal', estado: 'activo' },
-  ];
+  {
+    id: 1,
+    servicio: 'Fibra 200',
+    proveedor: 'Claro',
+    plan: 'MENSUAL',
+    precio_mensual: 120000,
+    name: 'Fibra 200',
+    description: '200 Mbps simétricos de Internet de alta velocidad.',
+    price: 120000,
+    estado: 'activo'
+  },
+  {
+    id: 2,
+    servicio: 'Plan Hogar Energía',
+    proveedor: 'EnergíaCo',
+    plan: 'MENSUAL',
+    precio_mensual: 85000,
+    name: 'Plan Hogar Energía',
+    description: 'Servicio de energía eléctrica mensual para el hogar.',
+    price: 85000,
+    estado: 'activo'
+  },
+  {
+    id: 3,
+    servicio: 'Paquete Premium TV',
+    proveedor: 'CableMax',
+    plan: 'MENSUAL',
+    precio_mensual: 65000,
+    name: 'Paquete Premium TV',
+    description: 'Incluye canales HD, deportes y streaming.',
+    price: 65000,
+    estado: 'activo'
+  },
+  {
+    id: 4,
+    servicio: 'Agua Potable Residencial',
+    proveedor: 'Acueductos S.A.',
+    plan: 'MENSUAL',
+    precio_mensual: 40000,
+    name: 'Agua Potable',
+    description: 'Servicio básico de agua potable para el hogar.',
+    price: 40000,
+    estado: 'activo'
+  },
+  {
+    id: 5,
+    servicio: 'Gas Natural Familiar',
+    proveedor: 'GasSur',
+    plan: 'MENSUAL',
+    precio_mensual: 55000,
+    name: 'Gas Natural Hogar',
+    description: 'Suministro de gas natural para uso residencial.',
+    price: 55000,
+    estado: 'activo'
+  },
+  {
+    id: 6,
+    servicio: 'Plan Móvil 20GB',
+    proveedor: 'MoviTel',
+    plan: 'MENSUAL',
+    precio_mensual: 75000,
+    name: 'Plan Móvil 20GB',
+    description: 'Datos móviles 20GB, minutos y SMS ilimitados.',
+    price: 75000,
+    estado: 'activo'
+  },
+  {
+    id: 7,
+    servicio: 'Streaming Plus',
+    proveedor: 'CineFlix',
+    plan: 'MENSUAL',
+    precio_mensual: 45000,
+    name: 'Streaming Plus',
+    description: 'Plataforma de streaming con miles de películas y series.',
+    price: 45000,
+    estado: 'activo'
+  },
+  {
+    id: 8,
+    servicio: 'Mantenimiento Hogar',
+    proveedor: 'HomeCare',
+    plan: 'ANUAL',
+    precio_mensual: 300000,
+    name: 'Mantenimiento Hogar',
+    description: 'Servicio anual de mantenimiento eléctrico y de plomería.',
+    price: 300000,
+    estado: 'activo'
+  },
+  {
+    id: 9,
+    servicio: 'Alarma y Seguridad',
+    proveedor: 'SafeHouse',
+    plan: 'MENSUAL',
+    precio_mensual: 95000,
+    name: 'Seguridad Residencial',
+    description: 'Sistema de alarma, cámaras y monitoreo 24/7.',
+    price: 95000,
+    estado: 'activo'
+  },
+  {
+    id: 10,
+    servicio: 'Plan Salud Básico',
+    proveedor: 'MediPlus',
+    plan: 'MENSUAL',
+    precio_mensual: 120000,
+    name: 'Seguro Médico Básico',
+    description: 'Cobertura en consultas generales y emergencias.',
+    price: 120000,
+    estado: 'activo'
+  }
+];
+
 
   constructor() {}
 
   getCatalog(): Observable<ServiceItem[]> {
     return of(this.mock);
   }
-
-  // placeholder para cuando pases a backend:
-  // getCatalog(): Observable<ServiceItem[]> {
-  //   return this.http.get<ServiceItem[]>(`${environment.apiBase}/catalog`);
-  // }
 }
