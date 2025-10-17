@@ -1,72 +1,71 @@
+/* src/app/catalog/catalog.component.scss */
 .catalog-container {
-  padding: 2rem;
+  padding: 1.8rem;
   max-width: 1200px;
   margin: 0 auto;
   border-radius: 16px;
   text-align: center;
+}
 
-  h2 {
-    margin-bottom: 2rem;
-    color: var(--primary);
-    font-weight: bold;
+h2 {
+  margin-bottom: 1.2rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.add-service-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.8rem;
+  align-items: end;
+  margin-bottom: 1rem;
+
+  button[type="submit"] {
+    grid-column: span 1;
+    justify-self: end;
+    height: 40px;
+    align-self: center;
   }
+}
+
+.export-container {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin: 0.8rem 0 1.4rem 0;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.selected-count {
+  font-weight: 600;
+  color: var(--primary);
 }
 
 .search-input {
+  width: 420px;
+  min-width: 180px;
+}
+
+.mat-elevation-z8 {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+table {
   width: 100%;
-  margin-bottom: 2rem;
-}
-
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
-
-.service-card {
-  padding: 1.5rem;
-  border-radius: 16px;
-  text-align: left;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-  transition: transform .2s ease-in-out;
-
-  &:hover {
-    transform: translateY(-4px);
-  }
-
-  h3 {
-    margin: 0 0 0.5rem;
-    color: var(--primary);
-  }
-
-  .desc {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    margin-bottom: 0.8rem;
-  }
-
-  .price {
-    font-weight: bold;
-    color: var(--secondary);
-    margin-bottom: 1rem;
-  }
-
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-  }
+  margin-top: 0.6rem;
 }
 
 .no-data, .error-message {
-  margin-top: 2rem;
-  padding: 1.5rem;
+  margin-top: 1rem;
+  padding: 1rem;
   border-radius: 12px;
   font-style: italic;
+  color: #f87171;
+}
+
+mat-spinner {
+  margin: 1.4rem auto;
+  display: block;
 }
