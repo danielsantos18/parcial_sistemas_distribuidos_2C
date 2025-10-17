@@ -1,15 +1,81 @@
 <app-navbar></app-navbar>
 
-<div class="profile-wrap fade-in">
+<div class="profile-page fade-in">
   <div class="profile-card glass">
-    <h2>Mi Perfil</h2>
-
-    <div class="info">
-      <p><strong>Nombre:</strong> {{ user?.name }}</p>
-      <p><strong>Correo:</strong> {{ user?.email }}</p>
-      <p><strong>ID:</strong> {{ user?.id }}</p>
+    <!-- Header con foto -->
+    <div class="header">
+      <div class="photo-wrapper">
+        <img [src]="newPhoto || user?.foto" alt="Foto de perfil" />
+        <label *ngIf="editMode" class="change-photo">
+          <i class="fas fa-camera"></i>
+          <input type="file" accept="image/*" (change)="onPhotoSelected($event)" hidden />
+        </label>
+      </div>
+      <div>
+        <h2>{{ user?.nombre }}</h2>
+        <p>{{ user?.correo }}</p>
+      </div>
+      <button class="edit-btn" (click)="toggleEdit()">
+        <i class="fas" [ngClass]="editMode ? 'fa-xmark' : 'fa-pen'"></i>
+      </button>
     </div>
 
+    <!-- Info -->
+    <div *ngIf="!editMode" class="info-section">
+      <div class="info-box"><i class="fas fa-id-card"></i> {{ user?.cedula }}</div>
+      <div class="info-box"><i class="fas fa-phone"></i> {{ user?.telefono }}</div>
+      <div class="info-box"><i class="fas fa-map-marker-alt"></i> {{ user?.direccion }}</div>
+    </div>
+
+    <!-- Formulario de edición -->
+    <div *ngIf="editMode" class="edit-section">
+      <label>Nombre</label>
+      <input [(ngModel)]="tempUser!.nombre" />
+
+      <label>Teléfono</label>
+      <input [(ngModel)]="tempUser!.telefono" />
+
+      <label>Dirección</label>
+      <input [(ngModel)]="tempUser!.direccion" />
+
+      <div class="edit-actions">
+        <button class="save" (click)="saveChanges()">Guardar</button>
+        <button class="cancel" (click)="cancelEdit()">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- Cuentas -->
+    <div class="accounts-section">
+      <h3>Mis Cuentas</h3>
+      <div class="accounts">
+        <div *ngFor="let c of user?.cuentas" class="account-card">
+          <h4>{{ c.tipo }}</h4>
+          <p class="number">{{ c.numero }}</p>
+          <p class="saldo">{{ c.saldo | currency:'COP' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Movimientos -->
+    <div class="movements-section">
+      <h3>Movimientos recientes</h3>
+      <div class="movements">
+        <div
+          *ngFor="let m of user?.movimientos"
+          class="movement"
+          [class.entrada]="m.tipo === 'entrada'"
+          [class.salida]="m.tipo === 'salida'"
+        >
+          <div class="info">
+            <p class="desc">{{ m.descripcion }}</p>
+            <p class="date">{{ m.fecha }}</p>
+          </div>
+          <div class="amount" [ngClass]="m.tipo">{{ m.monto | currency:'COP' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón salir -->
     <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
   </div>
 </div>

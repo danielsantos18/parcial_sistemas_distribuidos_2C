@@ -1,13 +1,44 @@
-<div class="auth-wrap">
-  <div class="card">
-    <h2>Iniciar sesión</h2>
-    <label>Email
-      <input type="email" [(ngModel)]="email" />
-    </label>
-    <label>Contraseña
-      <input type="password" [(ngModel)]="password" />
-    </label>
-    <button (click)="submit()" [disabled]="loading">Entrar</button>
-    <p class="note">¿No tienes cuenta? <a routerLink="/register">Regístrate</a></p>
+<div class="auth-wrapper fade-in">
+  <div class="auth-glass">
+    <div class="logo">
+      <img src="https://cdn-icons-png.flaticon.com/512/2920/2920320.png" alt="InfernoBank" />
+      <h2>Inferno<span>Bank</span></h2>
+    </div>
+
+    <h3>Bienvenido de nuevo</h3>
+    <p class="subtitle">Accede con tus credenciales</p>
+
+    <form (ngSubmit)="submit()" autocomplete="off">
+      <div class="input-group">
+        <i class="fas fa-envelope"></i>
+        <input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="Correo electrónico"
+          required
+        />
+      </div>
+
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Contraseña"
+          required
+        />
+      </div>
+
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Cargando...' : 'Iniciar sesión' }}
+      </button>
+
+      <p class="note">
+        ¿No tienes una cuenta?
+        <a routerLink="/register">Regístrate aquí</a>
+      </p>
+    </form>
   </div>
 </div>

@@ -1,21 +1,55 @@
-<div class="auth-wrap fade-in">
-  <div class="auth-card glass">
-    <h2>Crear cuenta</h2>
+<div class="auth-wrapper fade-in">
+  <div class="auth-glass">
+    <div class="logo">
+      <img src="https://cdn-icons-png.flaticon.com/512/2920/2920320.png" alt="InfernoBank" />
+      <h2>Inferno<span>Bank</span></h2>
+    </div>
 
-    <label>Nombre</label>
-    <input type="text" [(ngModel)]="name" placeholder="Tu nombre completo" />
+    <h3>Crea tu cuenta</h3>
+    <p class="subtitle">Únete al futuro bancario</p>
 
-    <label>Correo electrónico</label>
-    <input type="email" [(ngModel)]="email" placeholder="usuario@ejemplo.com" />
+    <form (ngSubmit)="submit()" autocomplete="off">
+      <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input
+          type="text"
+          [(ngModel)]="name"
+          name="name"
+          placeholder="Nombre completo"
+          required
+        />
+      </div>
 
-    <label>Contraseña</label>
-    <input type="password" [(ngModel)]="password" placeholder="********" />
+      <div class="input-group">
+        <i class="fas fa-envelope"></i>
+        <input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="Correo electrónico"
+          required
+        />
+      </div>
 
-    <button (click)="submit()" [disabled]="loading">Registrarse</button>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Contraseña"
+          required
+        />
+      </div>
 
-    <p class="note">
-      ¿Ya tienes una cuenta?
-      <a routerLink="/login">Inicia sesión</a>
-    </p>
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Creando cuenta...' : 'Registrarme' }}
+      </button>
+
+      <p class="note">
+        ¿Ya tienes una cuenta?
+        <a routerLink="/login">Inicia sesión</a>
+      </p>
+    </form>
   </div>
 </div>
