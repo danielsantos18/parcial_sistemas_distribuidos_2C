@@ -12,6 +12,8 @@ import { NavbarComponent } from '../../shared/components/navbar/navbar';
 export class PaymentsComponent {
   pagos = [
     { servicio: 'Internet Hogar', monto: 120000, fecha: '2025-10-15', traceId: 'TRX-12345', estado: 'Aprobado' },
-    { servicio: 'EnergíaCo', monto: 85000, fecha: '2025-10-10', traceId: 'TRX-67890', estado: 'Pendiente' },
+    { servicio: 'Electricaribe', monto: 85000, fecha: '2025-10-10', traceId: 'TRX-67890', estado: 'Pendiente' },
+    { servicio: 'Paquete Premium TV', monto: 75000, fecha: '2025-10-10', traceId: 'TRX-67870', estado: 'Aprobado' },
+    { servicio: 'Trenaferencia maria', monto: 65000, fecha: '13/10/2025', traceId: 'TRX-62470', estado: 'Aprobado' },
   ];
 }

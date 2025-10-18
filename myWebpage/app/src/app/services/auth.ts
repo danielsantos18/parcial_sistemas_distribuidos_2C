@@ -1,35 +1,70 @@
-// src/app/services/auth.service.ts
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+import { Router } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  token?: string;
-}
-
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthService {
-  private mockUser: User = { id: 'u1', name: 'Usuario Demo', email: 'demo@ejemplo.com', token: 'mock-token-123' };
+  constructor(private http: HttpClient, private router: Router) {}
 
-  constructor() {}
-
-  login(email: string, password: string): Observable<User> {
-    // mock: acepta cualquier credencial; cuando tengas backend, usa HttpClient.post(...)
-    return of(this.mockUser);
+  // 🔹 Registro
+  register(body: any): Observable<any> {
+    return this.http.post('/api/register', body);
   }
 
-  register(name: string, email: string, password: string): Observable<User> {
-    return of({ id: 'u2', name, email, token: 'mock-token-register' });
+  // 🔹 Login (con redirección automática)
+  login(email: string, password: string): Observable<any> {
+    const body = { email, password };
+    return this.http.post('/api/login', body).pipe(
+      tap((res: any) => {
+        console.log('🟢 Respuesta del login:', res);
+        if (res && res.token) {
+          localStorage.setItem('token', res.token);
+          console.log('💾 Token guardado en localStorage');
+        } else {
+          console.warn('⚠️ No se recibió token en la respuesta');
+        }
+      })
+    );
   }
 
-  getProfile(): Observable<User> {
-    return of(this.mockUser);
+  // 🔹 Obtener token guardado
+  getToken(): string | null {
+    return localStorage.getItem('token');
   }
 
-  logout() {
-    // limpia localStorage en la app real
-    localStorage.removeItem('user');
+  // 🔹 Saber si está logueado
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('token');
   }
+
+  // 🔹 Cerrar sesión
+  logout(): void {
+    localStorage.removeItem('token');
+    this.router.navigate(['/login']).then(() => {
+      console.log('🚪 Sesión cerrada y redirigido a login');
+    });
+  }
+
+  // 🔹 Decodificar el token
+  getUserIdFromToken(): string | null {
+    const token = this.getToken();
+    if (!token) {
+      console.warn('⚠️ No hay token guardado en localStorage');
+      return null;
+    }
+
+    try {
+      const decoded: any = jwtDecode(token);
+      console.log('🔍 Token decodificado:', decoded);
+      return decoded.sub || decoded.userId || null;
+    } catch (error) {
+      console.error('❌ Error al decodificar token:', error);
+      return null;
+    }
+  }
+  
 }

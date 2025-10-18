@@ -2,41 +2,53 @@
 
 <div class="profile-page fade-in">
   <div class="profile-card glass">
-    <!-- Header con foto -->
+    
+    <!-- 🔹 Header con foto, nombre y botón de edición -->
     <div class="header">
       <div class="photo-wrapper">
-        <img [src]="newPhoto || user?.foto" alt="Foto de perfil" />
+        <img [src]="newPhoto || user?.foto || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'" alt="Foto de perfil" />
         <label *ngIf="editMode" class="change-photo">
           <i class="fas fa-camera"></i>
           <input type="file" accept="image/*" (change)="onPhotoSelected($event)" hidden />
         </label>
       </div>
+
       <div>
-        <h2>{{ user?.nombre }}</h2>
-        <p>{{ user?.correo }}</p>
+        <h2>{{ user?.nombre || user?.name }} {{ user?.apellido || user?.lastName }}</h2>
+        <p>{{ user?.correo || user?.email }}</p>
       </div>
+
       <button class="edit-btn" (click)="toggleEdit()">
         <i class="fas" [ngClass]="editMode ? 'fa-xmark' : 'fa-pen'"></i>
       </button>
     </div>
 
-    <!-- Info -->
+    <!-- 🔹 Información del usuario -->
     <div *ngIf="!editMode" class="info-section">
-      <div class="info-box"><i class="fas fa-id-card"></i> {{ user?.cedula }}</div>
-      <div class="info-box"><i class="fas fa-phone"></i> {{ user?.telefono }}</div>
-      <div class="info-box"><i class="fas fa-map-marker-alt"></i> {{ user?.direccion }}</div>
+      <div class="info-box">
+        <i class="fas fa-id-card"></i> {{ user?.documento || user?.document }}
+      </div>
+      <div class="info-box">
+        <i class="fas fa-phone"></i> {{ user?.telefono || 'Sin teléfono' }}
+      </div>
+      <div class="info-box">
+        <i class="fas fa-map-marker-alt"></i> {{ user?.direccion || 'Sin dirección' }}
+      </div>
     </div>
 
-    <!-- Formulario de edición -->
+    <!-- 🔹 Modo edición -->
     <div *ngIf="editMode" class="edit-section">
       <label>Nombre</label>
-      <input [(ngModel)]="tempUser!.nombre" />
+      <input [(ngModel)]="tempUser!.nombre" placeholder="Tu nombre" />
+
+      <label>Apellido</label>
+      <input [(ngModel)]="tempUser!.apellido" placeholder="Tu apellido" />
 
       <label>Teléfono</label>
-      <input [(ngModel)]="tempUser!.telefono" />
+      <input [(ngModel)]="tempUser!.telefono" placeholder="Número de teléfono" />
 
       <label>Dirección</label>
-      <input [(ngModel)]="tempUser!.direccion" />
+      <input [(ngModel)]="tempUser!.direccion" placeholder="Dirección" />
 
       <div class="edit-actions">
         <button class="save" (click)="saveChanges()">Guardar</button>
@@ -44,11 +56,11 @@
       </div>
     </div>
 
-    <!-- Cuentas -->
-    <div class="accounts-section">
+    <!-- 🔹 Sección de cuentas -->
+    <div *ngIf="user?.cuentas?.length" class="accounts-section">
       <h3>Mis Cuentas</h3>
       <div class="accounts">
-        <div *ngFor="let c of user?.cuentas" class="account-card">
+        <div *ngFor="let c of user.cuentas" class="account-card">
           <h4>{{ c.tipo }}</h4>
           <p class="number">{{ c.numero }}</p>
           <p class="saldo">{{ c.saldo | currency:'COP' }}</p>
@@ -56,26 +68,33 @@
       </div>
     </div>
 
-    <!-- Movimientos -->
-    <div class="movements-section">
+    <!-- 🔹 Movimientos -->
+    <div *ngIf="user?.movimientos?.length" class="movements-section">
       <h3>Movimientos recientes</h3>
       <div class="movements">
-        <div
-          *ngFor="let m of user?.movimientos"
+        <div 
+          *ngFor="let m of user.movimientos" 
           class="movement"
           [class.entrada]="m.tipo === 'entrada'"
           [class.salida]="m.tipo === 'salida'"
         >
           <div class="info">
             <p class="desc">{{ m.descripcion }}</p>
-            <p class="date">{{ m.fecha }}</p>
+            <p class="date">{{ m.fecha | date:'dd/MM/yyyy' }}</p>
           </div>
           <div class="amount" [ngClass]="m.tipo">{{ m.monto | currency:'COP' }}</div>
         </div>
       </div>
     </div>
 
-    <!-- Botón salir -->
-    <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+    <!-- 🔹 Subir foto (solo cuando se selecciona) -->
+    <div *ngIf="newPhoto && editMode" style="text-align:center; margin-top:1rem;">
+      <button class="save" (click)="uploadAvatar()">Subir nueva foto</button>
+    </div>
+
+    <!-- 🔹 Botón de cierre de sesión -->
+    <button class="logout-btn" (click)="logout()">
+      <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+    </button>
   </div>
 </div>

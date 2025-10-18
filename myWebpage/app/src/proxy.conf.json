@@ -1,0 +1,30 @@
+{
+  "/api/register": {
+    "target": "https://sdamtp8yo3.execute-api.us-east-2.amazonaws.com",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/register": "/users/register"
+    }
+  },
+  "/api/login": {
+    "target": "https://akhmew3pv1.execute-api.us-east-2.amazonaws.com",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/login": "/users/login"
+    }
+  },
+  
+  "/api": {
+    "target": "https://v7hjhcn0ej.execute-api.us-east-2.amazonaws.com",
+    "pathRewrite": { "^/api": "" },
+    "secure": false, 
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}
+
+
+
+

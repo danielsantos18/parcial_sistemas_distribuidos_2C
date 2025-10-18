@@ -15,7 +15,29 @@
           type="text"
           [(ngModel)]="name"
           name="name"
-          placeholder="Nombre completo"
+          placeholder="Nombre"
+          required
+        />
+      </div>
+
+      <div class="input-group">
+        <i class="fas fa-user-tag"></i>
+        <input
+          type="text"
+          [(ngModel)]="lastName"
+          name="lastName"
+          placeholder="Apellido"
+          required
+        />
+      </div>
+
+      <div class="input-group">
+        <i class="fas fa-id-card"></i>
+        <input
+          type="text"
+          [(ngModel)]="document"
+          name="document"
+          placeholder="Número de documento"
           required
         />
       </div>

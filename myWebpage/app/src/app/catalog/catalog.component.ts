@@ -171,9 +171,15 @@ export class CatalogComponent implements OnInit {
     document.body.removeChild(link);
   }
 
-  /* ------------------ Acciones de ejemplo ------------------ */
   iniciarPago(service: ServiceItem): void {
-    alert(`Iniciando pago para ${service.name} - ${service.price}`);
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const cardId = user.cardId; // o selecciona la tarjeta del perfil
+
+    this.catalogService.payService(cardId, service).subscribe({
+      next: res => alert(`Pago iniciado con traceId: ${res.traceId}`),
+      error: err => alert('Error al iniciar el pago.'),
+    });
   }
+
 
 }

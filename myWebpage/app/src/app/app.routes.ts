@@ -1,16 +1,26 @@
-// src/app/app.routes.ts
 import { Routes } from '@angular/router';
+import { LoginComponent } from './pages/login/login';
+import { RegisterComponent } from './pages/register/register';
+import { HomeComponent } from './pages/home/home';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { CatalogComponent } from './catalog/catalog.component';
+import { CardsComponent } from './pages/cards/cards.component';
+import { PaymentsComponent } from './pages/payments/payments.component';
+import { ProfileComponent } from './pages/profile/profile';
+import { AuthGuard } from './guards/auth.guard';
+import { SupportComponent } from './pages/support/support.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: 'home', loadComponent: () => import('./pages/home/home').then(c => c.HomeComponent) },
-  { path: 'login', loadComponent: () => import('./pages/login/login').then(c => c.LoginComponent) },
-  { path: 'catalog', loadComponent: () => import('./catalog/catalog.component').then(c => c.CatalogComponent) },
-  { path: 'profile', loadComponent: () => import('./pages/profile/profile').then(c => c.ProfileComponent) },
-  { path: 'register', loadComponent: () => import('./pages/register/register').then(c => c.RegisterComponent) },
-  { path: 'dashboard', loadComponent: () => import('../app/pages/dashboard/dashboard.component').then(c => c.DashboardComponent) },
-  { path: 'cards', loadComponent: () => import('../app/pages/cards/cards.component').then(c => c.CardsComponent) },
-  { path: 'payments', loadComponent: () => import('../app/pages/payments/payments.component').then(c => c.PaymentsComponent) },
-  { path: 'support', loadComponent: () => import('../app/pages/support/support.component').then(c => c.SupportComponent) },
-  { path: '**', redirectTo: 'home' }
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },  
+  { path: 'home', component: HomeComponent, canActivate       
+  : [AuthGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'catalog', component: CatalogComponent, canActivate: [AuthGuard] },
+  { path: 'cards', component: CardsComponent, canActivate: [AuthGuard] },
+  { path: 'payments', component: PaymentsComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'support', component: SupportComponent, canActivate: [AuthGuard] },
+  { path: '**', redirectTo: 'login' }
 ];
